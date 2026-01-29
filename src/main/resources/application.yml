@@ -1,0 +1,20 @@
+spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/firstcome?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        username: root
+        password: tmdgus4021@
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                format_sql: true
+
+    data:
+        redis:
+            host: localhost
+            port: 6379
+
+logging:
+    level:
+        org.hibernate.SQL: debug
