@@ -28,8 +28,9 @@ Race Condition이 발생해 **중복·초과 발급** 문제가 생김.
   - 운영 환경에 적합하나 락 기반 직렬 처리 한계 존재
 
 ## 결론
-선착순 쿠폰 발급 문제는  
-락으로 직렬화하기보다 **Redis 원자 연산(Lua / INCR)** 방식이 더 적합하다는 인사이트를 얻음.
+선착순 쿠폰 발급에서 발생하는 동시성 문제를
+애플리케이션, DB, Redis 레벨에서 단계적으로 해결했고,
+분산 환경에서는 busy-wait를 제거한 Redisson 분산 락이 가장 안정적인 해결책임을 확인했다.
 
 ## 기술 스택
 Java, Spring Boot, JPA, MySQL, Redis(Lettuce, Redisson)
