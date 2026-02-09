@@ -16,7 +16,7 @@
 
 ## 동시성 제어 방식별 구현
 
-### Java `synchronized`
+### 1. Java `synchronized`
 - JVM 내부 락 기반 동기화
 - 단일 서버 환경에서는 동작 가능
 - 멀티 인스턴스 환경에서는 락 공유 불가
@@ -24,7 +24,7 @@
 
 ---
 
-### Database Lock
+### 2. Database Lock
 
 #### Pessimistic Lock
 - `SELECT ... FOR UPDATE` 기반 Row Lock
@@ -37,9 +37,15 @@
 - 재시도 정책에 따라 성능 특성 변화
 - 높은 처리량과 낮은 지연 시간
 
+#### Named Lock
+- DB의 `GET_LOCK` / `RELEASE_LOCK` 활용
+- 트랜잭션과 분리된 락 관리
+- 분산 환경에서도 락 공유 가능
+- DB 커넥션을 점유하므로 트래픽 증가 시 병목 발생 가능
+
 ---
 
-### Redis 기반 Lock
+### 3. Redis 기반 Lock
 
 #### Spin Lock (Lettuce)
 - Redis `SET NX` 기반 직접 구현
@@ -78,7 +84,8 @@
 | 방식 | 처리량 | 지연(p95) | 안정성 | 비고 |
 |----|----|----|----|----|
 | synchronized | 매우 낮음 | 매우 높음 | 낮음 | 단일 서버 한계 |
-| Pessimistic Lock | 낮음 | 높음 | 보통 | DB 대기 증가 |
+| Pessimistic Lock | 낮음 | 높음 | 보통 | DB Row Lock |
+| Named Lock | 보통 | 보통 | 보통 | DB 커넥션 점유 |
 | Optimistic Lock | 높음 | 낮음 | 보통 | 실패율 높음 |
 | Redis Spin Lock | 높음 | 낮음 | 낮음 | Redis 부하 |
 | Redisson Lock | 높음 | 낮음 | 높음 | 최종 선택 |
@@ -89,6 +96,9 @@
 
 Optimistic Lock은 가장 높은 처리량과 낮은 지연 시간을 제공했지만,  
 실패율이 높아 비즈니스 요구에 따라 적합성이 달라질 수 있었습니다.  
+Named Lock과 Pessimistic Lock은 정합성은 우수했으나  
+DB 자원 점유로 인해 트래픽 증가 시 병목이 발생했습니다.  
+
 Redisson Lock은 선착순 정합성을 유지하면서도  
 성능과 운영 안정성의 균형이 가장 뛰어난 방식으로 판단하여 최종 선택했습니다.
 
@@ -98,6 +108,7 @@ Redisson Lock은 선착순 정합성을 유지하면서도
 
 - 선착순 시스템의 핵심은 절대적인 순서 보장이 아닌 **정합성 유지**
 - 동시성 제어 방식은 환경(단일/분산)과 트래픽 특성에 따라 달라져야 함
+- Database Lock과 Redis Lock은 **병목 지점이 다름**
 - Redis Lock도 구현 방식에 따라 성능과 안정성이 크게 달라짐
 - 기술 선택의 근거를 **실험 결과로 설명하는 것이 중요**
 
