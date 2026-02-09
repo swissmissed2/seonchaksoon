@@ -28,7 +28,7 @@ public class OptimisticCouponIssueFacade {
         return CouponIssueResponse.builder()
                 .couponId(null)
                 .userId(request.getUserId())
-                .result("RETRY_FAILED")
+                .result("LOCK_TIMEOUT")
                 .build();
     }
 }

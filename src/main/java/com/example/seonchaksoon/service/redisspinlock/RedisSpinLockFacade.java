@@ -20,13 +20,24 @@ public class RedisSpinLockFacade {
     public CouponIssueResponse issueWithRedisSpinLock(String eventKey, CouponIssueRequest request) {
 
         String lockKey = "lock:event:" + eventKey;
-        Duration ttl = Duration.ofSeconds(10);
+
+        Duration ttl = Duration.ofSeconds(10); // ✅ 3초 -> 10초 (너무 짧으면 만료 위험)
+        long maxWaitMs = 2000;                 // ✅ 최대 2초 대기 후 포기
+        long start = System.currentTimeMillis();
 
         String token;
         while ((token = redisLockRepository.tryLock(lockKey, ttl)) == null) {
+
+            if (System.currentTimeMillis() - start > maxWaitMs) {
+                return CouponIssueResponse.builder()
+                        .couponId(null)
+                        .userId(request.getUserId())
+                        .result("LOCK_TIMEOUT")  // ✅ 통일
+                        .build();
+            }
+
             try {
-                long backoff = 10 + (long) (Math.random() * 41); // 10~50ms
-                Thread.sleep(backoff);
+                Thread.sleep(30);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return CouponIssueResponse.builder()
