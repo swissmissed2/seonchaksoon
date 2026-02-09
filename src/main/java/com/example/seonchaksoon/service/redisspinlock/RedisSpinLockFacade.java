@@ -21,8 +21,8 @@ public class RedisSpinLockFacade {
 
         String lockKey = "lock:event:" + eventKey;
 
-        Duration ttl = Duration.ofSeconds(10); // ✅ 3초 -> 10초 (너무 짧으면 만료 위험)
-        long maxWaitMs = 2000;                 // ✅ 최대 2초 대기 후 포기
+        Duration ttl = Duration.ofSeconds(10);
+        long maxWaitMs = 2000;                 // 최대 2초 대기 후 포기
         long start = System.currentTimeMillis();
 
         String token;
@@ -32,7 +32,7 @@ public class RedisSpinLockFacade {
                 return CouponIssueResponse.builder()
                         .couponId(null)
                         .userId(request.getUserId())
-                        .result("LOCK_TIMEOUT")  // ✅ 통일
+                        .result("LOCK_TIMEOUT")
                         .build();
             }
 

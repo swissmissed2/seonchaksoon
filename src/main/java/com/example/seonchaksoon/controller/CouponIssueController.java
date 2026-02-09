@@ -35,8 +35,8 @@ public class CouponIssueController {
             @RequestBody CouponIssueRequest request
     ) {
         CouponIssueResponse res = switch (strategy) {
-            case "synchronized" -> synchronizedCouponIssueService.couponIssue(eventKey, request);                 // ✅ 너 메서드명에 맞춰
-            case "pessimistic" -> pessimisticLockCouponIssueService.issueCoupon(eventKey, request); // ✅ 이미 있는 형태
+            case "synchronized" -> synchronizedCouponIssueService.couponIssue(eventKey, request);
+            case "pessimistic" -> pessimisticLockCouponIssueService.issueCoupon(eventKey, request);
             case "optimistic" -> optimisticCouponIssueFacade.issueWithRetry(eventKey, request);
             case "named" -> namedLockFacade.issueWithNamedLock(eventKey, request);
             case "redis-spin" -> redisSpinLockFacade.issueWithRedisSpinLock(eventKey, request);
@@ -48,7 +48,7 @@ public class CouponIssueController {
     }
 
     private ResponseEntity<CouponIssueResponse> toResponse(CouponIssueResponse res) {
-        String result = res.getResult(); // result 필드 getter가 있어야 함
+        String result = res.getResult();
 
         if ("SUCCESS".equals(result)) {
             return ResponseEntity.ok(res);

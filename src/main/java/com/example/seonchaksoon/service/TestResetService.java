@@ -36,8 +36,6 @@ public class TestResetService {
     }
 
     private int deleteRedisKeysByEventKey(String eventKey) {
-        // ⚠ 테스트 편의용: 운영에서는 KEYS 패턴 삭제 지양
-        // 너 프로젝트에서 쓰는 키 prefix에 맞춰서 구체적으로 바꿔도 됨.
         Set<String> keys = redisTemplate.keys("*" + eventKey + "*");
         if (keys == null || keys.isEmpty()) return 0;
         Long removed = redisTemplate.delete(keys);
